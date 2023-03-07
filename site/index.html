@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>BAR Spring engine builds</title>
+  <style>
+    body 
+    { 
+      font-family: sans-serif;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+    table {
+      table-layout: fixed;
+      border-spacing: 0; 
+      border-collapse: collapse; 
+    }
+    th, td {
+      text-align: left;
+      padding: 4px;
+    }
+    .commit {
+      font-family: monospace;
+    }
+    .version {
+      font-family: monospace;
+    }
+    .summary {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 500px;
+    }
+    .download {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+ <table>
+  <thead>
+    <tr>
+      <th>Summary</th>
+      <th>Commit</th>
+      <th>Version</th>
+      <th>Linux</th>
+      <th>Windows</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for ca in commit_artifacts %}
+    <tr>
+      <td class="summary">{{ ca.commit.summary }}</td>
+      <td class="commit"><a href="https://github.com/beyond-all-reason/spring/commit/{{ ca.commit }}">{{ ca.short_commit }}</a></td>
+      <td class="version">{{ ca.version }}</td>
+      <td class="download">{% if ca.lin_path %}<a href="{{ ca.lin_path }}">linux</a>{% endif %}</th>
+      <td class="download">{% if ca.win_path %}<a href="{{ ca.win_path }}">windows</a>{% endif %}</th>
+    </tr>
+    {% endfor %}
+</table> 
+</body>
+</html>
