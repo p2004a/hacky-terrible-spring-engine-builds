@@ -35,7 +35,9 @@ for commit in $(git rev-list "$COMMIT_SINCE"..HEAD); do
 	rm -rf *
 	rm -f .ninja*
 	git checkout $commit
-	git submodule update
+	git submodule update --init --recursive
+	git branch -f BAR105
+	git checkout BAR105
 	./.config.sh
 	if ninja -j 14 install; then
 		NAME="engine_${PLATFORM}64_$(cat VERSION | cut -d' ' -f 1)"
