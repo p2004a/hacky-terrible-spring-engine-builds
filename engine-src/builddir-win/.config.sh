@@ -8,5 +8,5 @@ cmake \
 	-DTRACY_ON_DEMAND=ON \
 	-DAI_TYPES=NATIVE \
 	-DINSTALL_PORTABLE=ON \
-	-DCMAKE_INSTALL_PREFIX:PATH=install \
+	-DCMAKE_INSTALL_PREFIX:PATH="$(dirname $(realpath "$0"))/install" \
 	-GNinja ..

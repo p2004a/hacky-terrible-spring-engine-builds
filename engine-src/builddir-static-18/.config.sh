@@ -15,7 +15,7 @@ cmake \
 	-DBINDIR:PATH=./ \
 	-DLIBDIR:PATH=./ \
 	-DDATADIR:PATH=./ \
-	-DCMAKE_INSTALL_PREFIX=install \
+	-DCMAKE_INSTALL_PREFIX:PATH="$(dirname $(realpath "$0"))/install" \
 	-DPREFER_STATIC_LIBS:BOOL=1 \
 	-DCMAKE_USE_RELATIVE_PATHS:BOOL=1 \
 	-G Ninja \
