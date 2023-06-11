@@ -34,7 +34,7 @@ for commit in $(git rev-list "$COMMIT_SINCE"..HEAD); do
 
 	rm -rf *
 	rm -f .ninja*
-	git checkout $commit
+	git checkout $commit --force
 	git submodule update --init --recursive
 	git branch -f BAR105
 	git checkout BAR105
