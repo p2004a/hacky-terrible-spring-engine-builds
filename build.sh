@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+renice --relative 15 $$
+
 SCRIPT_DIR="$(dirname "$(realpath -s "$0")")"
 
 PLATFORM="$1"
