@@ -2,41 +2,36 @@
 
 set -xeuo pipefail
 
-REPO=/home/p2004a/Workspace/BAR/spring
+REPO=/home/p2004a/Workspace/BAR/spring-ci
 SCRIPT_DIR="$(dirname "$(realpath -s "$0")")"
 
 cd "$REPO"
 
-SYNC_FROM=upstream/BAR105
+REMOTE=origin
+BRANCH=BAR105
 
-if [[ $# -ge 1 ]]; then
-    SYNC_FROM="$1"
-else
-    SYNC_FROM=upstream/BAR105
-    git checkout BAR105
-    git submodule update --init --recursive
-    git pull upstream BAR105
-fi
+SYNC_FROM=$REMOTE/$BRANCH
+git fetch $REMOTE
+cd mingwlibs64
+git pull
+cd ../spring-static-libs
+git pull
+cd ..
 
-git checkout "$SYNC_FROM"
+distrobox enter spring -- "$SCRIPT_DIR/build.sh" "$REPO" windows $SYNC_FROM $BRANCH
+distrobox enter ubuntu18 -- "$SCRIPT_DIR/build.sh" "$REPO" linux $SYNC_FROM $BRANCH
+
+git -c advice.detachedHead=false checkout "$SYNC_FROM" --force
+git branch -f $BRANCH
+git checkout $BRANCH
 git submodule update --init --recursive
-
-distrobox enter spring -- "$SCRIPT_DIR/build.sh" windows last-catchup
-
-git checkout "$SYNC_FROM"
-git submodule update --init --recursive
-
-distrobox enter ubuntu18 -- "$SCRIPT_DIR/build.sh" linux last-catchup
-
-git checkout "$SYNC_FROM"
-git branch -f BAR105
-git checkout BAR105
-git submodule update --init --recursive
-
-git tag last-catchup --force
-
-git push origin
 
 cd "$SCRIPT_DIR"
+
+SITE_HASH_BEFORE=$(md5sum artifacts/index.html | cut -d' ' -f 1)
 ./site/env/bin/python ./site/build-site.py artifacts "$REPO"
-rclone sync --progress artifacts r2bar:engine-builds-419
+SITE_HASH_AFTER=$(md5sum artifacts/index.html | cut -d' ' -f 1)
+
+if [[ "$SITE_HASH_BEFORE" != "$SITE_HASH_AFTER" ]]; then
+    rclone sync --progress artifacts r2bar:engine-builds-419
+fi

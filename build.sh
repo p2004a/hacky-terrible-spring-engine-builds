@@ -2,19 +2,19 @@
 
 set -euo pipefail
 
-renice --relative 15 $$
+renice -n 15 $$
+ionice -c 3 -p $$
 
 SCRIPT_DIR="$(dirname "$(realpath -s "$0")")"
 
-PLATFORM="$1"
-if [[ "$PLATFORM" == "windows" ]]; then
-	BUILD_PATH=/home/p2004a/Workspace/BAR/spring/builddir-win
-elif [[ "$PLATFORM" == "linux" ]]; then
-	BUILD_PATH=/home/p2004a/Workspace/BAR/spring/builddir-static-18
-else
+REPO="$1"
+PLATFORM="$2"
+if [[ "$PLATFORM" != "windows" && "$PLATFORM" != "linux" ]]; then
 	echo "first argument must be correct platform"
 	exit 1
 fi
+SYNC_FROM="$3"
+BRANCH="$4"
 
 COMMIT_SINCE="$2"
 if [[ -z "$COMMIT_SINCE" ]]; then
@@ -22,9 +22,18 @@ if [[ -z "$COMMIT_SINCE" ]]; then
 	exit 1
 fi
 
-cd $BUILD_PATH
+cd "$REPO/builddir-$PLATFORM"
 
-for commit in $(git rev-list "$COMMIT_SINCE"..HEAD); do
+function get_commits {
+	for commit in $(git rev-list -n 100 $SYNC_FROM); do
+		if [[ -f "$SCRIPT_DIR/built-commits/$commit-$PLATFORM" ]]; then
+			return
+		fi
+		echo $commit
+	done
+}
+
+for commit in $(get_commits | tac); do
 	printf "%s: " $PLATFORM
 	git -c core.pager=cat show --quiet --format=short $commit
 	printf "\n"
@@ -38,15 +47,16 @@ for commit in $(git rev-list "$COMMIT_SINCE"..HEAD); do
 	rm -f .ninja*
 	git checkout $commit --force
 	git submodule update --init --recursive
-	git branch -f BAR105
-	git checkout BAR105
-	./.config.sh
-	if ninja -j 14 install; then
+	git branch -f $BRANCH
+	git checkout $BRANCH
+	if ./.config.sh && ninja -j 14 install; then
 		NAME="engine_${PLATFORM}64_$(cat VERSION | cut -d' ' -f 1)"
 		mv install "$NAME"
 		7z a -r dist.7z "$NAME"
 		mv dist.7z "$SCRIPT_DIR/artifacts/$NAME.7z"
+		echo "ok" > "$SCRIPT_DIR/built-commits/$commit-$PLATFORM"
 	else
 		echo "Build failed"
+		echo "fail" > "$SCRIPT_DIR/built-commits/$commit-$PLATFORM"
 	fi
 done

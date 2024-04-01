@@ -1,7 +1,7 @@
 export PKG_CONFIG_LIBDIR="$(pwd)/../spring-static-libs/lib/pkgconfig"
 export PKG_CONFIG="pkg-config --define-prefix --static"
 cmake \
-	-DCMAKE_TOOLCHAIN_FILE="../toolchain/gcc-11_x86_64-pc-linux-gnu.cmake" \
+	-DCMAKE_TOOLCHAIN_FILE="../toolchain/gcc-13_x86_64-pc-linux-gnu.cmake" \
 	-DCMAKE_SYSTEM_PREFIX_PATH="$(pwd)/../spring-static-libs" \
 	-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 	-DCMAKE_BUILD_TYPE=RELWITHDEBINFO \

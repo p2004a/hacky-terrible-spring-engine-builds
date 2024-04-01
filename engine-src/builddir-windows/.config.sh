@@ -2,11 +2,12 @@ cmake \
 	-DCMAKE_TOOLCHAIN_FILE="../toolchain/gcc_x86_64-pc-windows-gnu.cmake" \
 	-DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 	-DCMAKE_BUILD_TYPE=RELWITHDEBINFO \
-	-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O3 -g1 -DNDEBUG -fdiagnostics-color=always" \
-	-DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -g1 -DNDEBUG -fdiagnostics-color=always" \
+	-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O3 -g1 -DNDEBUG -fdiagnostics-color=always -static-libstdc++ -static-libgcc" \
+	-DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -g1 -DNDEBUG -fdiagnostics-color=always -static-libstdc++ -static-libgcc" \
 	-DTRACY_ENABLE=ON \
 	-DTRACY_ON_DEMAND=ON \
 	-DAI_TYPES=NATIVE \
 	-DINSTALL_PORTABLE=ON \
+	-DWITH_MAPCOMPILER=OFF \
 	-DCMAKE_INSTALL_PREFIX:PATH="$(dirname $(realpath "$0"))/install" \
 	-GNinja ..
